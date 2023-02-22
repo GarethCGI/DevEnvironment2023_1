@@ -1,3 +1,5 @@
+import axios from "axios"
+
 export default defineEventHandler(async (event) => {
 	const data = await readBody(event)
 	if (!data) {
@@ -10,15 +12,13 @@ export default defineEventHandler(async (event) => {
 	}
 	const id = data.id
 	const { pteroDomain, pteroKey } = useRuntimeConfig()
-	const response = await fetch(`https://${pteroDomain}/api/client/servers/${id}/power`, {
-		method: 'POST',
+	const response = await axios.post(`https://${pteroDomain}/api/client/servers/${id}/power`, {
+		signal: 'start'
+	}, {
 		headers: {
 			'Content-Type': 'application/json',
 			'Authorization': `Bearer ${pteroKey}`
-		},
-		body: JSON.stringify({
-			signal: 'start'
-		})
+		}
 	}).catch(() => {
 		return { status: 404, online: false }
 	})

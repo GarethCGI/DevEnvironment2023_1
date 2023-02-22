@@ -21,6 +21,11 @@
 	right: 0;
 	height: 60px;
 }
+@media screen and (max-width: 600px) {
+	.footer {
+		position: relative;
+	}
+}
 
 .footer__links {
 	display: flex;

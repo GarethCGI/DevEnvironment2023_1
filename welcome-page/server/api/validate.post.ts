@@ -1,3 +1,6 @@
+import axios from "axios"
+import https from "https"
+
 export default defineEventHandler(async (event) => {
 	const { id } = await readBody(event)
 	if (!id) {
@@ -9,7 +12,11 @@ export default defineEventHandler(async (event) => {
 	const { cfgDomain } = useRuntimeConfig()
 	
 	// Request and check if status code is 200
-	const response = await fetch(`https://${id}.${cfgDomain}/`).catch(() => {
+	const response = await axios.get(`https://${id}.${cfgDomain}/`,{
+		httpsAgent: new https.Agent({
+			rejectUnauthorized: false // Ignore Self Signed Certs Validity
+		})
+	}).catch(() => {
 		return { status: 404 }
 	})
 	if (response.status === 200) {

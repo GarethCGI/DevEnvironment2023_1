@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-	const { id } = await readBody(event)
+	const id = await getCookie(event, 'id')
 	if (!id) {
 		return;
 	}
@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const { cfgDomain, pmaDomain } = useRuntimeConfig()
-	
+
 
 	let places = [
 		{ name: " Editor ", value: `https://dev-${id}.${cfgDomain}/`, href: `https://dev-${id}.${cfgDomain}/`, bootable: true },

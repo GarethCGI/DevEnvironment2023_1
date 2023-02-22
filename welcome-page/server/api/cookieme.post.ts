@@ -12,4 +12,5 @@ export default defineEventHandler(async (event) => {
 		sameSite: 'lax',
 		secure: true,
 	})
+	return { message: 'Signed in' }
 })

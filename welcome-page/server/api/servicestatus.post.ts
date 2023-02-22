@@ -1,5 +1,6 @@
-import axios, { AxiosResponse } from 'axios'
+import axios from 'axios'
 import WebSocket from 'ws'
+import https from 'https'
 
 function toBuffer(obj: any | string) {
 	if (typeof obj === 'string') {
@@ -95,8 +96,13 @@ export default defineEventHandler(async (event) => {
 	// editor urls look like this: https://dev-<id>.<domain>
 	const editorRegex = new RegExp(`^https?:\/\/dev-`)
 	if (!hostUrl.match(editorRegex)) {
-		const response = await fetch(hostUrl).catch(() => {
+		const response = await axios.get(hostUrl, {
+			httpsAgent: new https.Agent({
+				rejectUnauthorized: false // Ignore Self-Signed Certs
+			})
+		}).catch((e) => {
 			console.log("Error fetching host")
+			console.log(hostUrl)
 			return { status: 404, online: false }
 		})
 		if (response.status === 200) {

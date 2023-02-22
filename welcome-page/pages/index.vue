@@ -126,7 +126,6 @@ button {
 
 </style>
 <script lang="ts" setup>
-import cookiemePost from '~~/server/api/cookieme.post';
 
 const runtimeConfig = useRuntimeConfig();
 let id = "";
@@ -143,32 +142,30 @@ async function validate() {
 		let v = res.data.value as { isValid: boolean, url?: string }
 		if (v.isValid) {
 			isAuthenticated.value = true;
-			useFetch("/api/cookieme", {
+			await useFetch("/api/cookieme", {
 				method: "POST",
 				body: JSON.stringify({ id: id }),
 			})
-			setIdOnStorage();
 		}
 		else {
 			alert("Id no valido");
 		}
 	}
+	await retrieveId();
 };
-function setIdOnStorage() {
-	localStorage.setItem("Id", id);
-	getPlaces();
-}
-function retrieveId() {
-	id = localStorage.getItem("Id") || "";
-	if (id != "") {
-		isAuthenticated.value = true;
+async function retrieveId() {
+	let res = await useFetch("/api/whoami");
+	if (res.data.value != null) {
+		id = res.data.value!.id ? res.data.value.id : "";
+		isAuthenticated.value = id != "";
 	}
 }
 function checkAuth() {
 	return isAuthenticated.value;
 }
 function signOut() {
-	localStorage.removeItem("Id");
+	useFetch("/api/signout");
+	id = "";
 	isAuthenticated.value = false;
 }
 async function getPlaces() {
@@ -182,6 +179,12 @@ definePageMeta({
 	title: "Bienvenid@ al entorno de Desarrollo Web",
 });
 
-retrieveId();
-getPlaces();
+onMounted(() => {
+	(async () => {
+		await retrieveId();
+		if (isAuthenticated.value) {
+			await getPlaces();
+		}
+	})();
+});
 </script>

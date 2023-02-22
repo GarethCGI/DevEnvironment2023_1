@@ -118,7 +118,6 @@ let online = ref("loading");
 const { hostUrl } = toRefs(props.place);
 const checkOnline = async () => {
 	online.value = "loading";
-	//Fetch ignoring cache
 	const response = await axios.post("/api/servicestatus", {
 		hostUrl: hostUrl.value,
 	});
