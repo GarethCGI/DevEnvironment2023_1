@@ -11,38 +11,37 @@
 			<!-- Input with placeholder -->
 			<input type="text" v-model="id" placeholder="Ingresa tu Id" />
 			<!-- Button with text, on click event run validate function -->
-			<button @click.passive="validate">Ingresar</button>
+			<button @click.passive="validate" class="separation">Ingresar</button>
 		</div>
 		<div class="navigation" v-else>
-			<div class="list">
-				<ul>
-					<li v-for="place in places" :key="place.name">
-						<div class="place">
-							{{ place.name }} <br />
-							<!-- Open in new window -->
-							<a :href="place.href" target="_blank">{{ place.value }}</a>
-						</div>
-					</li>
-				</ul>
+			<!-- Contains Cards -->
+			<div class="place-container d-flex flex-wrap justify-content-center">
+				<div v-for="preplace in places" :key="preplace.name">
+					<Place
+						:place="{ imageUrl: null, title: preplace.name, description: preplace.value, hostUrl: preplace.href, bootable: preplace.bootable }" />
+				</div>
 			</div>
-			<button @click.passive="signOut">Salir</button>
+			<button @click.passive="signOut" class="separation">Salir</button>
 		</div>
 	</div>
 </template>
 <style scoped>
-:root {
-	--color-sea: #ff1e62;
-	--color-sea-2: #ff0000;
-}
+
 
 h1 {
+	color: var(--text-primary);
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 	margin: 0%;
 	height: 70px;
 	padding: 0%;
 }
 
+.place-container {
+	width: 100%;
+	height: 100%;
+}
 .indication {
+	color: var(--text-primary);
 	font-size: 1.5rem;
 	font-family: 'Century Gothic', sans-serif;
 	max-height: fit-content;
@@ -57,10 +56,15 @@ h1 {
 }
 
 .strongest {
+	color: var(--text-primary);
 	font-weight: 900;
 	font-size: 5rem;
 	font-family: 'Oswald', sans-serif;
 	max-height: fit-content;
+}
+
+.separation {
+	margin: 1rem;
 }
 
 @media screen and (max-width: 600px) {
@@ -106,7 +110,7 @@ button {
 	border-radius: 4px;
 	padding: 12px 20px;
 	box-sizing: border-box;
-	background-color: #ff1e1e;
+	background-color: var(--primary);
 	color: white;
 }
 
@@ -119,35 +123,15 @@ button {
 	overflow-x: visible;
 }
 
-.list ul {
-	list-style-type: none;
-	padding: 0;
-}
 
-.list ul li {
-	margin: 0;
-}
-
-.list ul li a {
-	color: #ff1e1e;
-	text-decoration: none;
-	margin: 0;
-}
-
-.list ul li a:hover {
-	text-decoration: underline;
-}
-
-.place {
-	font-size: 1.5rem;
-	font-family: 'Oswald', sans-serif;
-}
 </style>
 <script lang="ts" setup>
+import cookiemePost from '~~/server/api/cookieme.post';
+
 const runtimeConfig = useRuntimeConfig();
 let id = "";
 let isAuthenticated = ref(false);
-let places = ref<{ name: string, value: string, href: string }[]>([]);
+let places = ref<{ name: string, value: string, href: string, bootable:boolean }[]>([]);
 async function validate() {
 	if (id == "") {
 		alert("Ingresa tu Id");
@@ -159,6 +143,10 @@ async function validate() {
 		let v = res.data.value as { isValid: boolean, url?: string }
 		if (v.isValid) {
 			isAuthenticated.value = true;
+			useFetch("/api/cookieme", {
+				method: "POST",
+				body: JSON.stringify({ id: id }),
+			})
 			setIdOnStorage();
 		}
 		else {
@@ -188,7 +176,7 @@ async function getPlaces() {
 		method: "POST",
 		body: JSON.stringify({ id: id }),
 	})
-	places.value = res.data.value as { name: string, value: string, href: string }[];
+	places.value = res.data.value as { name: string, value: string, href: string, bootable:boolean }[];
 }
 definePageMeta({
 	title: "Bienvenid@ al entorno de Desarrollo Web",

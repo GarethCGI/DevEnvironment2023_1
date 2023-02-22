@@ -7,8 +7,9 @@ export default defineEventHandler(async (event) => {
 		return { isValid: false }
 	}
 	const { cfgDomain } = useRuntimeConfig()
+	
 	// Request and check if status code is 200
-	const response = await fetch(`https://dev-${id}.${cfgDomain}/`).catch(() => {
+	const response = await fetch(`https://${id}.${cfgDomain}/`).catch(() => {
 		return { status: 404 }
 	})
 	if (response.status === 200) {

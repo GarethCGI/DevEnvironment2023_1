@@ -8,11 +8,12 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const { cfgDomain, pmaDomain } = useRuntimeConfig()
+	
 
 	let places = [
-		{ name: " Editor ", value: `https://dev-${id}.${cfgDomain}/`, href: `https://dev-${id}.${cfgDomain}/` },
-		{ name: " Web ", value: `https://${id}.${cfgDomain}/`, href: `https://${id}.${cfgDomain}/` },
-		{ name: " Base de Datos ", value: `Usuario: cbtisL_${id} - Host: ${cfgDomain}`, href: `https://${pmaDomain}/phpmyadmin/` },
+		{ name: " Editor ", value: `https://dev-${id}.${cfgDomain}/`, href: `https://dev-${id}.${cfgDomain}/`, bootable: true },
+		{ name: " Web ", value: `https://${id}.${cfgDomain}/`, href: `https://${id}.${cfgDomain}/`, bootable: false },
+		{ name: " Base de Datos ", value: `Usuario: cbtisL_${id} - Host: ${pmaDomain}`, href: `https://${pmaDomain}/phpmyadmin/`, bootable: false },
 	]
 
 	return places

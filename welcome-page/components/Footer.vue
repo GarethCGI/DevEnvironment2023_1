@@ -2,9 +2,11 @@
 <template>
 	<div class="footer">
 		<div class="footer__links">
-			
+
 		</div>
-		<!-- <ThemeChanger /> -->
+		<ClientOnly>
+			<ThemeChanger />
+		</ClientOnly>
 	</div>
 </template>
 <style scoped>
@@ -19,17 +21,20 @@
 	right: 0;
 	height: 60px;
 }
+
 .footer__links {
 	display: flex;
 }
+
 .footer__links a {
 	margin-right: 20px;
 }
+
 .footer__links a:last-child {
 	margin-right: 0;
 }
+
 .footer__links a:hover {
 	text-decoration: underline;
 }
-
 </style>

@@ -39,6 +39,7 @@ const runtimeConfig = useRuntimeConfig();
 	padding-left: 2rem;
 	/* Institutional font */
 	font-family: 'Oswald', sans-serif;
+	color: var(--text-primary);
 }
 .nav-bar__links {
 	display: flex;
@@ -47,11 +48,13 @@ const runtimeConfig = useRuntimeConfig();
 	/* Remove the underline from the links */
 	text-decoration: none;
 	justify-content: space-between;
+	color: var(--text-primary);
 }
 .nav-bar__links a {
 	margin-left: 1rem;
 	margin-right: 1rem;
 	text-decoration: none;
+	color: var(--text-primary);
 }
 .nav-bar__links a:hover {
 	text-decoration: underline;
