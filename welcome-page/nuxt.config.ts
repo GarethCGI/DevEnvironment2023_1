@@ -4,7 +4,9 @@ export default defineNuxtConfig({
 		public: {
 			brand: 'Nuxt.js',
 			logoURL: '/logo.png',
-			helpURL: 'https://nuxtjs.org/support-nuxtjs'
+			helpURL: 'https://nuxtjs.org/support-nuxtjs',
+			isGoodbye: true,
+			goodbyeMessage: 'Goodbye!',
 		},
 		allowedHosts: ['localhost'],
 		cfgDomain: 'localhost',

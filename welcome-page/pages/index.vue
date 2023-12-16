@@ -1,33 +1,103 @@
+<script lang="ts" setup>
+
+const runtimeConfig = useRuntimeConfig();
+let id = "";
+let isAuthenticated = ref(false);
+let places = ref<{ name: string, value: string, href: string, bootable: boolean }[]>([]);
+async function validate() {
+	if (id == "") {
+		alert("Ingresa tu Id");
+	} else {
+		let res = await useFetch("/api/validate", {
+			method: "POST",
+			body: JSON.stringify({ id: id }),
+		})
+		let v = res.data.value as { isValid: boolean, url?: string }
+		if (v.isValid) {
+			isAuthenticated.value = true;
+			await useFetch("/api/cookieme", {
+				method: "POST",
+				body: JSON.stringify({ id: id }),
+			})
+		}
+		else {
+			alert("Id no valido");
+		}
+	}
+	await retrieveId();
+};
+async function retrieveId() {
+	let res = await useFetch("/api/whoami");
+	if (res.data.value != null) {
+		id = res.data.value!.id ? res.data.value.id : "";
+		isAuthenticated.value = id != "";
+	}
+}
+function signOut() {
+	useFetch("/api/signout");
+	id = "";
+	isAuthenticated.value = false;
+}
+async function getPlaces() {
+	let res = await useFetch("/api/places", {
+		method: "POST",
+		body: JSON.stringify({ id: id }),
+	})
+	places.value = res.data.value as { name: string, value: string, href: string, bootable: boolean }[];
+}
+definePageMeta({
+	title: "Bienvenid@ al entorno de Desarrollo Web",
+});
+
+onMounted(() => {
+	(async () => {
+		await retrieveId();
+		if (isAuthenticated.value) {
+			await getPlaces();
+		}
+	})();
+	setInterval(async () => {
+		await retrieveId();
+		if (isAuthenticated.value) {
+			await getPlaces();
+		}
+	}, 10000);
+});
+</script>
+
 <template>
 	<div class="centered">
 		<h1>Bienvenid@ al entorno de Desarrollo Web</h1>
 		<div class="strongest">
-			{{ runtimeConfig.brand }}
+			{{ runtimeConfig.public.brand }}
 		</div>
-		<div class="identification" v-if="!checkAuth()">
-			<div class="indication">
-				Ingresa tu Id
-			</div>
-			<!-- Input with placeholder -->
-			<input type="text" v-model="id" placeholder="Ingresa tu Id" />
-			<!-- Button with text, on click event run validate function -->
-			<button @click.passive="validate" class="separation">Ingresar</button>
+		<div v-if="runtimeConfig.public.isGoodbye" class="deprecation">
+			{{ runtimeConfig.public.goodbyeMessage }}
 		</div>
-		<div class="navigation" v-else>
-			<!-- Contains Cards -->
-			<div class="place-container d-flex flex-wrap justify-content-center">
-				<div v-for="preplace in places" :key="preplace.name">
-					<Place
-						:place="{ imageUrl: null, title: preplace.name, description: preplace.value, hostUrl: preplace.href, bootable: preplace.bootable }" />
+		<div v-else>
+			<div class="identification" v-if="!isAuthenticated">
+				<div class="indication">
+					Ingresa tu Id
 				</div>
+				<!-- Input with placeholder -->
+				<input type="text" v-model="id" placeholder="Ingresa tu Id" />
+				<!-- Button with text, on click event run validate function -->
+				<button @click.passive="validate" class="separation">Ingresar</button>
 			</div>
-			<button @click.passive="signOut" class="separation">Salir</button>
+			<div class="navigation" v-else>
+				<!-- Contains Cards -->
+				<div class="place-container d-flex flex-wrap justify-content-center">
+					<div v-for="preplace in places" :key="preplace.name">
+						<Place
+							:place="{ imageUrl: null, title: preplace.name, description: preplace.value, hostUrl: preplace.href, bootable: preplace.bootable }" />
+					</div>
+				</div>
+				<button @click.passive="signOut" class="separation">Salir</button>
+			</div>
 		</div>
 	</div>
 </template>
 <style scoped>
-
-
 h1 {
 	color: var(--text-primary);
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
@@ -40,6 +110,7 @@ h1 {
 	width: 100%;
 	height: 100%;
 }
+
 .indication {
 	color: var(--text-primary);
 	font-size: 1.5rem;
@@ -61,6 +132,14 @@ h1 {
 	font-size: 5rem;
 	font-family: 'Oswald', sans-serif;
 	max-height: fit-content;
+}
+
+.deprecation {
+	color: var(--text-primary);
+	font-size: 1.5rem;
+	font-family: 'Century Gothic', sans-serif;
+	max-height: fit-content;
+	margin: 1rem;
 }
 
 .separation {
@@ -122,69 +201,4 @@ button {
 	overflow-y: scroll;
 	overflow-x: visible;
 }
-
-
 </style>
-<script lang="ts" setup>
-
-const runtimeConfig = useRuntimeConfig();
-let id = "";
-let isAuthenticated = ref(false);
-let places = ref<{ name: string, value: string, href: string, bootable:boolean }[]>([]);
-async function validate() {
-	if (id == "") {
-		alert("Ingresa tu Id");
-	} else {
-		let res = await useFetch("/api/validate", {
-			method: "POST",
-			body: JSON.stringify({ id: id }),
-		})
-		let v = res.data.value as { isValid: boolean, url?: string }
-		if (v.isValid) {
-			isAuthenticated.value = true;
-			await useFetch("/api/cookieme", {
-				method: "POST",
-				body: JSON.stringify({ id: id }),
-			})
-		}
-		else {
-			alert("Id no valido");
-		}
-	}
-	await retrieveId();
-};
-async function retrieveId() {
-	let res = await useFetch("/api/whoami");
-	if (res.data.value != null) {
-		id = res.data.value!.id ? res.data.value.id : "";
-		isAuthenticated.value = id != "";
-	}
-}
-function checkAuth() {
-	return isAuthenticated.value;
-}
-function signOut() {
-	useFetch("/api/signout");
-	id = "";
-	isAuthenticated.value = false;
-}
-async function getPlaces() {
-	let res = await useFetch("/api/places", {
-		method: "POST",
-		body: JSON.stringify({ id: id }),
-	})
-	places.value = res.data.value as { name: string, value: string, href: string, bootable:boolean }[];
-}
-definePageMeta({
-	title: "Bienvenid@ al entorno de Desarrollo Web",
-});
-
-onMounted(() => {
-	(async () => {
-		await retrieveId();
-		if (isAuthenticated.value) {
-			await getPlaces();
-		}
-	})();
-});
-</script>
